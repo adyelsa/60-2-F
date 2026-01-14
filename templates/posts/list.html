@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Список постов{% endblock %}
+
+{% block content %}
+<h2>Список постов</h2>
+
+<p>
+  <a href="{% url 'create_post' %}">➕ Создать пост</a>
+</p>
+
+{% for post in posts %}
+
+  {% if post.category %}
+    <p><strong>Категория:</strong> {{ post.category.name }}</p>
+  {% else %}
+    <p><strong>Категория:</strong> нет</p>
+  {% endif %}
+
+  <div>
+    {% if post.image %}
+      <img src="{{ post.image.url }}" alt="{{ post.title }}" width="300">
+    {% else %}
+      <img src="{% static 'img/no-image.jpeg' %}" alt="no image" width="300">
+    {% endif %}
+
+    <h3>
+      <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
+    </h3>
+
+    <p>{{ post.content }}</p>
+    <small>{{ post.created_at }}</small>
+  </div>
+
+  <hr>
+
+{% empty %}
+  <p>Пока постов нетт</p>
+{% endfor %}
+
+{% endblock %}
+
+
+
