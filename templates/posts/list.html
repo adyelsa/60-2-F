@@ -4,7 +4,61 @@
 {% block title %}Список постов{% endblock %}
 
 {% block content %}
+
 <h2>Список постов</h2>
+
+<form method="get">
+  <input type="text" name="q" placeholder="Поиск..." value="{{ q }}">
+  <button type="submit">Найти</button>
+
+  {% if q %}
+    <a href="{% url 'post_list' %}">Сбросить</a>
+  {% endif %}
+</form>
+
+<form method="get">
+  <!-- сохраняем q при выборе категории -->
+  <input type="hidden" name="q" value="{{ q }}">
+
+  <select name="category">
+    <option value="">Все категории</option>
+
+    {% for cat in categories %}
+      <option value="{{ cat.id }}"
+        {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Фильтр</button>
+
+  {% if selected_category %}
+    <a href="{% url 'post_list' %}?q={{ q }}">Сбросить категорию</a>
+  {% endif %}
+</form>
+
+<form method="get">
+  <input type="hidden" name="q" value="{{ q }}">
+  <input type="hidden" name="category" value="{{ selected_category }}">
+
+  <select name="sort">
+    <option value="">Без сортировки</option>
+    <option value="new" {% if sort == "new" %}selected{% endif %}>Сначала новые</option>
+    <option value="old" {% if sort == "old" %}selected{% endif %}>Сначала старые</option>
+    <option value="az" {% if sort == "az" %}selected{% endif %}>По названию A–Z</option>
+    <option value="za" {% if sort == "za" %}selected{% endif %}>По названию Z–A</option>
+  </select>
+
+  <button type="submit">Сортировать</button>
+
+  {% if sort %}
+    <a href="{% url 'post_list' %}?q={{ q }}&category={{ selected_category }}">Сбросить сортировку</a>
+  {% endif %}
+</form>
+
+
+<hr>
 
 <p>
   <a href="{% url 'create_post' %}">➕ Создать пост</a>
@@ -36,10 +90,25 @@
   <hr>
 
 {% empty %}
-  <p>Пока постов нетт</p>
+  <p>Пока постов нет</p>
 {% endfor %}
 
-{% endblock %}
+<hr>
 
+<div style="margin: 12px 0;">
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% for t in selected_tags %}&tags={{ t }}{% endfor %}{% if sort %}&sort={{ sort }}{% endif %}">← Назад</a>
+  {% endif %}
+
+  <span style="margin: 0 10px;">
+    Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+  </span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% for t in selected_tags %}&tags={{ t }}{% endfor %}{% if sort %}&sort={{ sort }}{% endif %}">Вперёд →</a>
+  {% endif %}
+</div>
+
+{% endblock %}
 
 
